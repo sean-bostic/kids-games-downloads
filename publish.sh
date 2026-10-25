@@ -1,7 +1,7 @@
 #!/bin/bash
 # Publishes the kids' games for the TV Mac. Run on the MacBook:
 #   ./publish.sh            rebuild and upload every game
-#   ./publish.sh marble     just one (folder names: claw marble vehicles reading)
+#   ./publish.sh marble     just one (folder names: claw marble vehicles reading skifree)
 # Each game is rebuilt with its own tools/build-app.sh, copied to the Desktop, zipped, and uploaded to the
 # "games" release. On the TV Mac, double-clicking "Update Games" downloads whatever is there.
 set -euo pipefail
@@ -17,6 +17,7 @@ GAMES=(
   "marble|Marble Rush"
   "vehicles|Turbo Vehicle Simulator"
   "reading|Reading Rainbow"
+  "skifree|SkiFree"
 )
 asset() { echo "${1// /-}.zip"; }   # "Marble Rush" -> Marble-Rush.zip (no spaces in download links)
 
