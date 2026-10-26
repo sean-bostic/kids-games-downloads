@@ -19,6 +19,7 @@ GAMES=(
   "reading|Reading Rainbow"
   "skifree|SkiFree"
   "jumping-bean|Jumping Bean Jamboree"
+  "shabin|The Shabin"
 )
 asset() { echo "${1// /-}.zip"; }   # "Marble Rush" -> Marble-Rush.zip (no spaces in download links)
 
