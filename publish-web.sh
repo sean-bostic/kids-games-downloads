@@ -10,7 +10,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 JUNK="$(dirname "$HERE")"
 REPO="sean-bostic/play"
 SITE="https://sean-bostic.github.io/play"
-WEB_GAMES=(vehicles claw marble basement) # only the games that work on the web; add a folder here once it does
+WEB_GAMES=(vehicles claw marble basement hide-elf) # only the games that work on the web; add a folder here once it does
 
 [ $# -gt 0 ] || { echo "Usage: ./publish-web.sh <folder…>   (on the web: ${WEB_GAMES[*]})"; exit 1; }
 for dir in "$@"; do [[ " ${WEB_GAMES[*]} " == *" $dir "* ]] || { echo "$dir isn't on the web list (${WEB_GAMES[*]})"; exit 1; }; done
