@@ -4,13 +4,14 @@
 # Each game's built page (its game/ folder, from npm run build) is copied to <folder>/ in the public repo
 # sean-bostic/play, which GitHub Pages serves. Only the built page goes there, never the source. Each script
 # tag gets ?v=<the game's commit> so phones fetch the new version, and the page gets a noindex tag.
-# Builds from the folder as it is, like publish.sh: commit first.
+# A game with its own web build (npm run build:web, writing web/site/: the Shabin's leaves out the truck radio's
+# song) goes up from that instead. Builds from the folder as it is, like publish.sh: commit first.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 JUNK="$(dirname "$HERE")"
 REPO="sean-bostic/play"
 SITE="https://sean-bostic.github.io/play"
-WEB_GAMES=(vehicles claw marble basement hide-elf) # only the games that work on the web; add a folder here once it does
+WEB_GAMES=(vehicles claw marble basement hide-elf shabin) # only the games that work on the web; add a folder here once it does
 
 [ $# -gt 0 ] || { echo "Usage: ./publish-web.sh <folder…>   (on the web: ${WEB_GAMES[*]})"; exit 1; }
 for dir in "$@"; do [[ " ${WEB_GAMES[*]} " == *" $dir "* ]] || { echo "$dir isn't on the web list (${WEB_GAMES[*]})"; exit 1; }; done
@@ -21,12 +22,15 @@ git clone -q --depth 1 "https://github.com/$REPO.git" "$OUT/play"
 
 for dir in "$@"; do
   echo "== $dir"
-  (cd "$JUNK/$dir" && npm run build >/dev/null)
+  built=game
+  if grep -q '"build:web"' "$JUNK/$dir/package.json"; then (cd "$JUNK/$dir" && npm run build:web >/dev/null); built=web/site
+  else (cd "$JUNK/$dir" && npm run build >/dev/null); fi
   sha="$(git -C "$JUNK/$dir" rev-parse --short HEAD)"
   [ -z "$(git -C "$JUNK/$dir" status --porcelain -- src game)" ] || echo "   (uncommitted changes in $dir: they go out too)"
-  rm -rf "$OUT/play/$dir" && cp -R "$JUNK/$dir/game" "$OUT/play/$dir"
+  rm -rf "$OUT/play/$dir" && cp -R "$JUNK/$dir/$built" "$OUT/play/$dir"
   sed -i '' -e "s|<script src=\"\([^\"?]*\)\.js\"></script>|<script src=\"\1.js?v=$sha\"></script>|g" \
-    -e 's|<meta charset="utf-8">|<meta charset="utf-8">\
+    "$OUT/play/$dir/index.html"
+  grep -q 'name="robots"' "$OUT/play/$dir/index.html" || sed -i '' -e 's|<meta charset="utf-8">|<meta charset="utf-8">\
 <meta name="robots" content="noindex">|' "$OUT/play/$dir/index.html"
   echo "$dir $sha" >> "$OUT/versions"
 done
