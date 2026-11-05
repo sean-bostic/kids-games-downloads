@@ -14,7 +14,8 @@ SITE="https://sean-bostic.github.io/play"
 WEB_GAMES=(vehicles claw marble basement hide-elf shabin dance shark dogfight) # only the games that work on the web; add a folder here once it does
 
 [ $# -gt 0 ] || { echo "Usage: ./publish-web.sh <folder…>   (on the web: ${WEB_GAMES[*]})"; exit 1; }
-for dir in "$@"; do [[ " ${WEB_GAMES[*]} " == *" $dir "* ]] || { echo "$dir isn't on the web list (${WEB_GAMES[*]})"; exit 1; }; done
+# (a web game's lab, <folder>-lab: its own page at play/<folder>-lab/, for trying it away from home: ./lab.sh <folder> web)
+for dir in "$@"; do [[ " ${WEB_GAMES[*]} " == *" ${dir%-lab} "* && ( "$dir" == "${dir%-lab}" || -d "$JUNK/$dir" ) ]] || { echo "$dir isn't on the web list (${WEB_GAMES[*]}, or one's lab)"; exit 1; }; done
 
 OUT="$(mktemp -d)"
 trap 'rm -rf "$OUT"' EXIT

@@ -3,6 +3,9 @@
 #   ./lab.sh dogfight new      make the lab once: ../dogfight-lab, a git worktree on its own branch (lab)
 #   ./lab.sh dogfight serve    serve the lab's build (its game/ folder: npm run build there) at http://<this Mac>:<port>/
 #                              on home Wi-Fi, keeping the Mac awake. Ctrl-C stops it.
+#   ./lab.sh dogfight web      the lab on the web too, for away from home (cell): its own page, play/dogfight-lab/, kept
+#                              apart from the real game (its own saved settings, rooms and invite link). Lab work only:
+#                              commit it first. The real game's page isn't touched.
 #   ./lab.sh dogfight ship     the lab's COMMITTED work goes everywhere: main catches up with the lab (tested), then
 #                              GitHub (the backup repo), the Desktop app, the TV Mac (publish.sh) and the web if the
 #                              game's on it (publish-web.sh). Afterwards the lab and main are the same again.
@@ -12,7 +15,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 JUNK="$(dirname "$HERE")"
 die() { echo "lab: $*" >&2; exit 1; }
 
-[ $# -eq 2 ] || die "usage: ./lab.sh <game folder> new|serve|ship"
+[ $# -eq 2 ] || die "usage: ./lab.sh <game folder> new|serve|web|ship"
 dir="$1" cmd="$2" MAIN="$JUNK/$1" LAB="$JUNK/$1-lab"
 [ -d "$MAIN/.git" ] || [ -f "$MAIN/.git" ] || die "no game at $MAIN"
 case "$dir" in dogfight) PORT=8800 ;; hide-elf) PORT=8801 ;; *) PORT=8810 ;; esac # (the phones remember these)
@@ -71,5 +74,10 @@ ship)
   if grep -qE "^WEB_GAMES=\(([^)]* )?$dir[ )]" "$HERE/publish-web.sh"; then echo "== the web"; (cd "$HERE" && ./publish-web.sh "$dir"); fi
   echo "Shipped the $dir lab ($(git -C "$MAIN" rev-parse --short HEAD)). On the mini: click Update Games."
   ;;
-*) die "new, serve or ship?" ;;
+web)
+  [ -d "$LAB" ] || die "no lab at $LAB"
+  grep -qE "^WEB_GAMES=\(([^)]* )?$dir[ )]" "$HERE/publish-web.sh" || die "$dir isn't on the web"
+  (cd "$HERE" && ./publish-web.sh "$dir-lab")
+  ;;
+*) die "new, serve, web or ship?" ;;
 esac
