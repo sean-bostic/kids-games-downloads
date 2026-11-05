@@ -15,6 +15,16 @@ The newest build of every game lives in the [**games** release](https://github.c
 ./publish.sh marble     # just one (claw, marble, vehicles, reading)
 ```
 
+### The lab: try it on the phones first
+
+```
+./lab.sh dogfight new      # once: ../dogfight-lab, a git worktree on its own branch
+./lab.sh dogfight serve    # http://<this Mac>:8800/ on home Wi-Fi (hide-elf: 8801, others 8810)
+./lab.sh dogfight ship     # the lab's committed work goes everywhere: main, GitHub, Desktop, TV, web
+```
+
+Work happens in the lab and gets played there; `ship` merges it into main (tests first), publishes it everywhere, checks the TV zip and the Desktop app match, and leaves the lab level with main for the next round.
+
 To add a game, add a line to `GAMES` in `publish.sh`. `updater/update.sh` is the Update Games app's script. It runs on an old Intel Mac, so it uses plain bash 3.2.
 
 ## Credits

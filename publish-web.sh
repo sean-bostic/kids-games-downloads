@@ -3,7 +3,7 @@
 #   ./publish-web.sh vehicles     https://sean-bostic.github.io/play/vehicles/
 # Each game's built page (its game/ folder, from npm run build) is copied to <folder>/ in the public repo
 # sean-bostic/play, which GitHub Pages serves. Only the built page goes there, never the source. Each script
-# tag gets ?v=<the game's commit> so phones fetch the new version, and the page gets a noindex tag.
+# tag gets ?v=<the game's commit> (replacing any the build put there) so phones fetch the new version, and the page gets a noindex tag.
 # A game with its own web build (npm run build:web, writing web/site/: the Shabin's leaves out the truck radio's
 # song) goes up from that instead. Builds from the folder as it is, like publish.sh: commit first.
 set -euo pipefail
@@ -28,7 +28,7 @@ for dir in "$@"; do
   sha="$(git -C "$JUNK/$dir" rev-parse --short HEAD)"
   [ -z "$(git -C "$JUNK/$dir" status --porcelain -- src game)" ] || echo "   (uncommitted changes in $dir: they go out too)"
   rm -rf "$OUT/play/$dir" && cp -R "$JUNK/$dir/$built" "$OUT/play/$dir"
-  sed -i '' -e "s|<script src=\"\([^\"?]*\)\.js\"></script>|<script src=\"\1.js?v=$sha\"></script>|g" \
+  sed -i '' -e "s|<script src=\"\([^\"?]*\)\.js\(?[^\"]*\)\{0,1\}\"></script>|<script src=\"\1.js?v=$sha\"></script>|g" \
     "$OUT/play/$dir/index.html"
   grep -q 'name="robots"' "$OUT/play/$dir/index.html" || sed -i '' -e 's|<meta charset="utf-8">|<meta charset="utf-8">\
 <meta name="robots" content="noindex">|' "$OUT/play/$dir/index.html"
