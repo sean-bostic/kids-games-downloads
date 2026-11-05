@@ -77,6 +77,7 @@ ship)
 web)
   [ -d "$LAB" ] || die "no lab at $LAB"
   grep -qE "^WEB_GAMES=\(([^)]* )?$dir[ )]" "$HERE/publish-web.sh" || die "$dir isn't on the web"
+  [ -f "$LAB/src/lab.js" ] || die "$dir has no src/lab.js yet: add one like ../dogfight/src/lab.js first (its own saved settings, rooms and invite link), or the lab page would mix with the real game's"
   (cd "$HERE" && ./publish-web.sh "$dir-lab")
   ;;
 *) die "new, serve, web or ship?" ;;
