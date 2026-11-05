@@ -6,6 +6,8 @@
 #   ./lab.sh dogfight web      the lab on the web too, for away from home (cell): its own page, play/dogfight-lab/, kept
 #                              apart from the real game (its own saved settings, rooms and invite link). Lab work only:
 #                              commit it first. The real game's page isn't touched.
+#   ./lab.sh dogfight app      the lab as an app on the Desktop too ("Dogfight Lab.app", kept apart from the real game
+#                              like the lab page). Needs the game's tools/build-app.sh to know 'lab' (dogfight's does).
 #   ./lab.sh dogfight ship     the lab's COMMITTED work goes everywhere: main catches up with the lab (tested), then
 #                              GitHub (the backup repo), the Desktop app, the TV Mac (publish.sh) and the web if the
 #                              game's on it (publish-web.sh). Afterwards the lab and main are the same again.
@@ -15,7 +17,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 JUNK="$(dirname "$HERE")"
 die() { echo "lab: $*" >&2; exit 1; }
 
-[ $# -eq 2 ] || die "usage: ./lab.sh <game folder> new|serve|web|ship"
+[ $# -eq 2 ] || die "usage: ./lab.sh <game folder> new|serve|web|app|ship"
 dir="$1" cmd="$2" MAIN="$JUNK/$1" LAB="$JUNK/$1-lab"
 [ -d "$MAIN/.git" ] || [ -f "$MAIN/.git" ] || die "no game at $MAIN"
 case "$dir" in dogfight) PORT=8800 ;; hide-elf) PORT=8801 ;; *) PORT=8810 ;; esac # (the phones remember these)
@@ -73,6 +75,11 @@ ship)
 
   if grep -qE "^WEB_GAMES=\(([^)]* )?$dir[ )]" "$HERE/publish-web.sh"; then echo "== the web"; (cd "$HERE" && ./publish-web.sh "$dir"); fi
   echo "Shipped the $dir lab ($(git -C "$MAIN" rev-parse --short HEAD)). On the mini: click Update Games."
+  ;;
+app)
+  [ -d "$LAB" ] || die "no lab at $LAB"
+  grep -q 'build-app.sh lab' "$LAB/tools/build-app.sh" 2>/dev/null || die "$dir's tools/build-app.sh can't build a lab app yet (see dogfight's)"
+  (cd "$LAB" && tools/build-app.sh lab "$HOME/Desktop" | tail -1)
   ;;
 web)
   [ -d "$LAB" ] || die "no lab at $LAB"
