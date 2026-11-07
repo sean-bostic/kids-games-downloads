@@ -2,7 +2,7 @@
 # Publishes the kids' games for the TV Mac. Run on the MacBook:
 #   ./publish.sh            rebuild and upload every game
 #   ./publish.sh marble     just one (folder names: claw marble vehicles reading skifree jumping-bean shabin dance basement shark dogfight backyard)
-# Each game is rebuilt with its own tools/build-app.sh, copied to the Desktop, zipped, and uploaded to the
+# Each game is rebuilt with its own tools/build-app.sh, copied to Desktop/Games, zipped, and uploaded to the
 # "games" release. On the TV Mac, double-clicking "Update Games" downloads whatever is there.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -41,7 +41,7 @@ for g in "${GAMES[@]}"; do
   if [ $# -gt 0 ] && [[ " $* " != *" $dir "* ]]; then continue; fi
   echo "== $name"
   (cd "$JUNK/$dir" && ./tools/build-app.sh)
-  rm -rf "$HOME/Desktop/$name.app" && ditto "$JUNK/$dir/$name.app" "$HOME/Desktop/$name.app"
+  mkdir -p "$HOME/Desktop/Games" && rm -rf "$HOME/Desktop/Games/$name.app" && ditto "$JUNK/$dir/$name.app" "$HOME/Desktop/Games/$name.app"
   ditto -c -k --sequesterRsrc --keepParent "$JUNK/$dir/$name.app" "$OUT/$(asset "$name")"
   uploads+=("$OUT/$(asset "$name")")
 done

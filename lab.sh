@@ -6,7 +6,7 @@
 #   ./lab.sh dogfight web      the lab on the web too, for away from home (cell): its own page, play/dogfight-lab/, kept
 #                              apart from the real game (its own saved settings, rooms and invite link). Lab work only:
 #                              commit it first. The real game's page isn't touched.
-#   ./lab.sh dogfight app      the lab as an app on the Desktop too ("Dogfight Lab.app", kept apart from the real game
+#   ./lab.sh dogfight app      the lab as an app in Desktop/Games too ("Dogfight Lab.app", kept apart from the real game
 #                              like the lab page). Needs the game's tools/build-app.sh to know 'lab' (dogfight's does).
 #   ./lab.sh dogfight ship     the lab's COMMITTED work goes everywhere: main catches up with the lab (tested), then
 #                              GitHub (the backup repo), the Desktop app, the TV Mac (publish.sh) and the web if the
@@ -68,7 +68,7 @@ ship)
   check="$(mktemp -d)"; trap 'rm -rf "$check"' EXIT
   gh release download games -R sean-bostic/kids-games-downloads -p "${app// /-}.zip" -D "$check" && ditto -x -k "$check/${app// /-}.zip" "$check/x"
   for f in "$MAIN/$app.app/Contents/Resources/game/"*.js; do cmp -s "$f" "$check/x/$app.app/Contents/Resources/game/$(basename "$f")" || die "the TV's zip doesn't match $(basename "$f")"; done
-  for f in "$MAIN/$app.app/Contents/Resources/game/"*.js; do cmp -s "$f" "$HOME/Desktop/$app.app/Contents/Resources/game/$(basename "$f")" || die "the Desktop app doesn't match $(basename "$f")"; done
+  for f in "$MAIN/$app.app/Contents/Resources/game/"*.js; do cmp -s "$f" "$HOME/Desktop/Games/$app.app/Contents/Resources/game/$(basename "$f")" || die "the Desktop app doesn't match $(basename "$f")"; done
   echo "   TV zip and Desktop app match"
 
   git -C "$LAB" merge -q --ff-only main # (the lab's the same as main again, the .app commit too)
@@ -79,7 +79,7 @@ ship)
 app)
   [ -d "$LAB" ] || die "no lab at $LAB"
   grep -q 'build-app.sh lab' "$LAB/tools/build-app.sh" 2>/dev/null || die "$dir's tools/build-app.sh can't build a lab app yet (see dogfight's)"
-  (cd "$LAB" && tools/build-app.sh lab "$HOME/Desktop" | tail -1)
+  mkdir -p "$HOME/Desktop/Games" && (cd "$LAB" && tools/build-app.sh lab "$HOME/Desktop/Games" | tail -1)
   ;;
 web)
   [ -d "$LAB" ] || die "no lab at $LAB"
