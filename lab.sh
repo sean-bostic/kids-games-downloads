@@ -7,7 +7,8 @@
 #                              apart from the real game (its own saved settings, rooms and invite link). Lab work only:
 #                              commit it first. The real game's page isn't touched.
 #   ./lab.sh dogfight app      the lab as an app in Desktop/Games too ("Dogfight Lab.app", kept apart from the real game
-#                              like the lab page). Needs the game's tools/build-app.sh to know 'lab' (dogfight's does).
+#                              like the lab page), and up to the TV Mac (the mini: Update Games) if publish.sh's LABS
+#                              lists it. Needs the game's tools/build-app.sh to know 'lab' (dogfight's does).
 #   ./lab.sh dogfight ship     the lab's COMMITTED work goes everywhere: main catches up with the lab (tested), then
 #                              GitHub (the backup repo), the Desktop app, the TV Mac (publish.sh) and the web if the
 #                              game's on it (publish-web.sh). Afterwards the lab and main are the same again.
@@ -63,7 +64,7 @@ ship)
 
   echo "== the Desktop app and the TV Mac"
   (cd "$HERE" && ./publish.sh "$dir")
-  app="$(grep -E "^  \"$dir\|" "$HERE/publish.sh" | sed -E 's/.*\|(.*)".*/\1/')"
+  app="$(grep -E "^  \"$dir\|" "$HERE/publish.sh" | grep -v ' Lab"' | sed -E 's/.*\|(.*)".*/\1/')"
   if [ -n "$(git -C "$MAIN" status --porcelain)" ]; then git -C "$MAIN" add -A && git -C "$MAIN" commit -q -m "$app.app: rebuilt" && git -C "$MAIN" push -q; fi
   check="$(mktemp -d)"; trap 'rm -rf "$check"' EXIT
   gh release download games -R sean-bostic/kids-games-downloads -p "${app// /-}.zip" -D "$check" && ditto -x -k "$check/${app// /-}.zip" "$check/x"
@@ -80,6 +81,15 @@ app)
   [ -d "$LAB" ] || die "no lab at $LAB"
   grep -q 'build-app.sh lab' "$LAB/tools/build-app.sh" 2>/dev/null || die "$dir's tools/build-app.sh can't build a lab app yet (see dogfight's)"
   mkdir -p "$HOME/Desktop/Games" && (cd "$LAB" && tools/build-app.sh lab "$HOME/Desktop/Games" | tail -1)
+  name="$(grep -E "^  \"$dir\|" "$HERE/publish.sh" | grep ' Lab"' | sed -E 's/.*\|(.*)".*/\1/' || true)"
+  if [ -n "$name" ]; then # (the TV Mac: zipped up to the games release, checked, and Update Games brings it down)
+    zips="$(mktemp -d)"; trap 'rm -rf "$zips"' EXIT
+    ditto -c -k --sequesterRsrc --keepParent "$HOME/Desktop/Games/$name.app" "$zips/${name// /-}.zip"
+    gh release upload games -R sean-bostic/kids-games-downloads --clobber "$zips/${name// /-}.zip"
+    gh release download games -R sean-bostic/kids-games-downloads -p "${name// /-}.zip" -D "$zips/check" && ditto -x -k "$zips/check/${name// /-}.zip" "$zips/x"
+    for f in "$HOME/Desktop/Games/$name.app/Contents/Resources/"*/*.js; do cmp -s "$f" "$zips/x/$name.app/${f#"$HOME/Desktop/Games/$name.app/"}" || die "the TV's zip doesn't match $(basename "$f")"; done
+    echo "On the TV Mac: $name (click Update Games on the mini)"
+  fi
   ;;
 web)
   [ -d "$LAB" ] || die "no lab at $LAB"

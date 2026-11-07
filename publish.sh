@@ -26,13 +26,18 @@ GAMES=(
   "dogfight|Dogfight"
   "backyard|The Backyard"
 )
+# the labs on the TV Mac too (the user, 2026-11-07): folder | app name. ./lab.sh <game> app uploads these; listed here so
+# games.txt always has them and Update Games keeps them current
+LABS=(
+  "dogfight|Dogfight Lab"
+)
 asset() { echo "${1// /-}.zip"; }   # "Marble Rush" -> Marble-Rush.zip (no spaces in download links)
 
 OUT="$(mktemp -d)"
 trap 'rm -rf "$OUT"' EXIT
 
 # the list the updater reads, always every game
-{ for g in "${GAMES[@]}"; do n="${g#*|}"; echo "$n|$(asset "$n")"; done; echo "Update Games|$(asset "Update Games")"; } > "$OUT/games.txt"
+{ for g in "${GAMES[@]}" "${LABS[@]}"; do n="${g#*|}"; echo "$n|$(asset "$n")"; done; echo "Update Games|$(asset "Update Games")"; } > "$OUT/games.txt"
 
 # ---- the games ----
 uploads=("$OUT/games.txt")
