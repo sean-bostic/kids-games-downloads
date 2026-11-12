@@ -21,7 +21,7 @@ die() { echo "lab: $*" >&2; exit 1; }
 [ $# -eq 2 ] || die "usage: ./lab.sh <game folder> new|serve|web|app|ship"
 dir="$1" cmd="$2" MAIN="$JUNK/$1" LAB="$JUNK/$1-lab"
 [ -d "$MAIN/.git" ] || [ -f "$MAIN/.git" ] || die "no game at $MAIN"
-case "$dir" in dogfight) PORT=8800 ;; hide-elf) PORT=8801 ;; *) PORT=8810 ;; esac # (the phones remember these)
+case "$dir" in dogfight) PORT=8800 ;; hide-elf) PORT=8801 ;; drainage) PORT=8802 ;; *) PORT=8810 ;; esac # (the phones remember these)
 built='^(game/|web/site/|[^/]+\.app/)'
 
 case "$cmd" in

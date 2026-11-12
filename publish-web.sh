@@ -11,7 +11,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 JUNK="$(dirname "$HERE")"
 REPO="sean-bostic/play"
 SITE="https://sean-bostic.github.io/play"
-WEB_GAMES=(vehicles claw marble basement hide-elf shabin dance shark dogfight backyard) # only the games that work on the web; add a folder here once it does
+WEB_GAMES=(vehicles claw marble basement hide-elf shabin dance shark dogfight backyard reading drainage) # only the games that work on the web; add a folder here once it does
 
 [ $# -gt 0 ] || { echo "Usage: ./publish-web.sh <folder…>   (on the web: ${WEB_GAMES[*]})"; exit 1; }
 # (a web game's lab, <folder>-lab: its own page at play/<folder>-lab/, for trying it away from home: ./lab.sh <folder> web)
