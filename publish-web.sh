@@ -9,13 +9,16 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 JUNK="$(dirname "$HERE")"
+STUDIO="$HOME/code/dad-hour-studios"
+# A game folder lives in the studio (~/code/dad-hour-studios/<game>/<folder>) or here in the junkyard.
+where() { local d; for d in "$STUDIO"/*/"$1"; do [ -e "$d" ] && { echo "$d"; return; }; done; echo "$JUNK/$1"; }
 REPO="sean-bostic/play"
 SITE="https://sean-bostic.github.io/play"
 WEB_GAMES=(vehicles claw marble basement hide-elf shabin dance shark dogfight backyard reading drainage brawl) # only the games that work on the web; add a folder here once it does
 
 [ $# -gt 0 ] || { echo "Usage: ./publish-web.sh <folder…>   (on the web: ${WEB_GAMES[*]})"; exit 1; }
 # (a web game's lab, <folder>-lab: its own page at play/<folder>-lab/, for trying it away from home: ./lab.sh <folder> web)
-for dir in "$@"; do [[ " ${WEB_GAMES[*]} " == *" ${dir%-lab} "* && ( "$dir" == "${dir%-lab}" || -d "$JUNK/$dir" ) ]] || { echo "$dir isn't on the web list (${WEB_GAMES[*]}, or one's lab)"; exit 1; }; done
+for dir in "$@"; do [[ " ${WEB_GAMES[*]} " == *" ${dir%-lab} "* && ( "$dir" == "${dir%-lab}" || -d "$(where "$dir")" ) ]] || { echo "$dir isn't on the web list (${WEB_GAMES[*]}, or one's lab)"; exit 1; }; done
 
 OUT="$(mktemp -d)"
 trap 'rm -rf "$OUT"' EXIT
@@ -24,11 +27,11 @@ git clone -q --depth 1 "https://github.com/$REPO.git" "$OUT/play"
 for dir in "$@"; do
   echo "== $dir"
   built=game
-  if grep -q '"build:web"' "$JUNK/$dir/package.json"; then (cd "$JUNK/$dir" && npm run build:web >/dev/null); built=web/site
-  else (cd "$JUNK/$dir" && npm run build >/dev/null); fi
-  sha="$(git -C "$JUNK/$dir" rev-parse --short HEAD)"
-  [ -z "$(git -C "$JUNK/$dir" status --porcelain -- src game)" ] || echo "   (uncommitted changes in $dir: they go out too)"
-  rm -rf "$OUT/play/$dir" && cp -R "$JUNK/$dir/$built" "$OUT/play/$dir"
+  if grep -q '"build:web"' "$(where "$dir")/package.json"; then (cd "$(where "$dir")" && npm run build:web >/dev/null); built=web/site
+  else (cd "$(where "$dir")" && npm run build >/dev/null); fi
+  sha="$(git -C "$(where "$dir")" rev-parse --short HEAD)"
+  [ -z "$(git -C "$(where "$dir")" status --porcelain -- src game)" ] || echo "   (uncommitted changes in $dir: they go out too)"
+  rm -rf "$OUT/play/$dir" && cp -R "$(where "$dir")/$built" "$OUT/play/$dir"
   sed -i '' -e "s|<script src=\"\([^\"?]*\)\.js\(?[^\"]*\)\{0,1\}\"></script>|<script src=\"\1.js?v=$sha\"></script>|g" \
     "$OUT/play/$dir/index.html"
   grep -q 'name="robots"' "$OUT/play/$dir/index.html" || sed -i '' -e 's|<meta charset="utf-8">|<meta charset="utf-8">\

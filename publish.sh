@@ -7,6 +7,9 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 JUNK="$(dirname "$HERE")"
+STUDIO="$HOME/code/dad-hour-studios"
+# A game folder lives in the studio (~/code/dad-hour-studios/<game>/<folder>) or here in the junkyard.
+where() { local d; for d in "$STUDIO"/*/"$1"; do [ -e "$d" ] && { echo "$d"; return; }; done; echo "$JUNK/$1"; }
 REPO="sean-bostic/kids-games-downloads"
 TAG="games"
 CHROME_BIN="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -45,9 +48,9 @@ for g in "${GAMES[@]}"; do
   dir="${g%%|*}" name="${g#*|}"
   if [ $# -gt 0 ] && [[ " $* " != *" $dir "* ]]; then continue; fi
   echo "== $name"
-  (cd "$JUNK/$dir" && ./tools/build-app.sh)
-  mkdir -p "$HOME/Desktop/Games" && rm -rf "$HOME/Desktop/Games/$name.app" && ditto "$JUNK/$dir/$name.app" "$HOME/Desktop/Games/$name.app"
-  ditto -c -k --sequesterRsrc --keepParent "$JUNK/$dir/$name.app" "$OUT/$(asset "$name")"
+  (cd "$(where "$dir")" && ./tools/build-app.sh)
+  mkdir -p "$HOME/Desktop/Games" && rm -rf "$HOME/Desktop/Games/$name.app" && ditto "$(where "$dir")/$name.app" "$HOME/Desktop/Games/$name.app"
+  ditto -c -k --sequesterRsrc --keepParent "$(where "$dir")/$name.app" "$OUT/$(asset "$name")"
   uploads+=("$OUT/$(asset "$name")")
 done
 

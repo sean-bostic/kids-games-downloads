@@ -16,10 +16,13 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 JUNK="$(dirname "$HERE")"
+STUDIO="$HOME/code/dad-hour-studios"
+# A game folder lives in the studio (~/code/dad-hour-studios/<game>/<folder>) or here in the junkyard.
+where() { local d; for d in "$STUDIO"/*/"$1"; do [ -e "$d" ] && { echo "$d"; return; }; done; echo "$JUNK/$1"; }
 die() { echo "lab: $*" >&2; exit 1; }
 
 [ $# -eq 2 ] || die "usage: ./lab.sh <game folder> new|serve|web|app|ship"
-dir="$1" cmd="$2" MAIN="$JUNK/$1" LAB="$JUNK/$1-lab"
+dir="$1" cmd="$2" MAIN="$(where "$1")"; LAB="$(dirname "$MAIN")/$1-lab"
 [ -d "$MAIN/.git" ] || [ -f "$MAIN/.git" ] || die "no game at $MAIN"
 case "$dir" in dogfight) PORT=8800 ;; hide-elf) PORT=8801 ;; drainage) PORT=8802 ;; brawl) PORT=8803 ;; *) PORT=8810 ;; esac # (the phones remember these)
 built='^(game/|web/site/|[^/]+\.app/)'
