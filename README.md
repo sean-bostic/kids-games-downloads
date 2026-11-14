@@ -18,7 +18,7 @@ The newest build of every game lives in the [**games** release](https://github.c
 ### The lab: try it on the phones first
 
 ```
-./lab.sh dogfight new      # once: ../dogfight-lab, a git worktree on its own branch
+./lab.sh dogfight new      # once: dogfight-lab beside the game (a studio game is found in ~/code/dad-hour-studios/<game>/), a git worktree on its own branch
 ./lab.sh dogfight serve    # http://<this Mac>:8800/ on home Wi-Fi (hide-elf: 8801, others 8810)
 ./lab.sh dogfight ship     # the lab's committed work goes everywhere: main, GitHub, Desktop, TV, web
 ```

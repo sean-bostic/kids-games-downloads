@@ -1,6 +1,6 @@
 #!/bin/bash
 # The lab: a private test bed for a game, played on the phones over home Wi-Fi before it goes out. Run on the MacBook:
-#   ./lab.sh dogfight new      make the lab once: ../dogfight-lab, a git worktree on its own branch (lab)
+#   ./lab.sh dogfight new      make the lab once: dogfight-lab beside the game, a git worktree on its own branch (lab)
 #   ./lab.sh dogfight serve    serve the lab's build (its game/ folder: npm run build there) at http://<this Mac>:<port>/
 #                              on home Wi-Fi, keeping the Mac awake. Ctrl-C stops it.
 #   ./lab.sh dogfight web      the lab on the web too, for away from home (cell): its own page, play/dogfight-lab/, kept
